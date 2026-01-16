@@ -70,7 +70,7 @@ const LoginForm = () => {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle>WelCome Back</CardTitle>
+          <CardTitle>Welcome Back</CardTitle>
           <CardDescription>Login to your account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -84,6 +84,12 @@ const LoginForm = () => {
                     type="button"
                     disabled={isPending}
                   >
+                    <Image
+                      src={"/images/github.svg"}
+                      width={20}
+                      height={20}
+                      alt="github"
+                    />
                     Continue with GitHub
                   </Button>
                   <Button
@@ -92,6 +98,12 @@ const LoginForm = () => {
                     type="button"
                     disabled={isPending}
                   >
+                    <Image
+                      src={"/images/google.svg"}
+                      width={20}
+                      height={20}
+                      alt="google"
+                    />
                     Continue with Google
                   </Button>
                 </div>
