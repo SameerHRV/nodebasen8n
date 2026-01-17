@@ -1,16 +1,7 @@
 import { requireAuth } from "@/lib/auth-utils";
-import { caller } from "@/trpc/server";
+import HomeClient from "./HomeClient";
 
-const Home = async () => {
+export default async function Home() {
   await requireAuth();
-
-  const data = await caller.getUsers();
-  return (
-    <div>
-      <h1>Protected Page</h1>
-      <p>User: {JSON.stringify(data)}</p>
-    </div>
-  );
-};
-
-export default Home;
+  return <HomeClient />;
+}
