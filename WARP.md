@@ -4,12 +4,18 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Tooling and Commands
 
-This is a TypeScript Next.js App Router project bootstrapped with `create-next-app` and managed via `npm`.
+This is a TypeScript Next.js App Router project bootstrapped with `create-next-app` and primarily managed via `npm` scripts.
 
 ### Development server
 
-- Start the dev server (hot reload on port 3000):
+- Start the Next.js dev server only (hot reload on port 3000):
   - `npm run dev`
+- Start only the Inngest dev server (for background workflows):
+  - `npm run inngest:dev`
+- Start both Next.js and Inngest together via `mprocs` (requires `bun` installed, uses `mprocs.yaml`):
+  - `npm run dev:all`
+
+You can also use alternative package managers supported by `create-next-app` (e.g. `yarn dev`, `pnpm dev`, `bun dev`) if you prefer, but the canonical scripts in this repo assume `npm`.
 
 ### Build and production
 
@@ -36,7 +42,7 @@ Prisma is configured with a PostgreSQL datasource and emits the client into `src
 
 ### Tests
 
-There is currently no test runner or `test` script defined in `package.json`. If you add one (e.g. Jest or Vitest), also document the single-test invocation here.
+There is currently no test runner or `test` script defined in `package.json`, and the repository does not define any `*.test.*` or `*.spec.*` files. If you add a test runner (e.g. Jest or Vitest), also add a `test` script and document how to run a single test file or test case.
 
 ## High-Level Architecture
 
@@ -147,6 +153,16 @@ The app uses **tRPC v11** together with **TanStack Query** for type-safe APIs.
   - Sleeps for 1 second using `step.sleep`.
   - Returns a greeting using `event.data.email`.
 - `src/app/api/inngest/route.ts` exposes Inngest functions to Next.js via `serve({ client: inngest, functions: [helloWorld] })` and provides `GET`, `POST`, and `PUT` handlers.
+
+### Observability and Sentry
+
+- **Global Sentry integration**
+  - `next.config.ts` wraps the Next.js config with `withSentryConfig` from `@sentry/nextjs` to enable source map upload, a `/monitoring` tunnel route, and Vercel cron monitor instrumentation.
+  - `src/instrumentation.ts` uses the App Router instrumentation hook `register()` to load either `sentry.server.config.ts` (for `NEXT_RUNTIME === "nodejs"`) or `sentry.edge.config.ts` (for `NEXT_RUNTIME === "edge"`) and exports `onRequestError` for unified request error capture.
+- **Example diagnostics page**
+  - `src/app/sentry-example-page/page.tsx` is a client-only page that verifies Sentry connectivity:
+    - Calls `Sentry.diagnoseSdkConnectivity()` on mount to detect whether the SDK can reach Sentry and disables the button if not.
+    - On button click, starts a span via `Sentry.startSpan`, calls `/api/sentry-example-api`, and then throws a `SentryExampleFrontendError` so you can see an example issue in Sentry.
 
 ### UI and styling
 
