@@ -15,12 +15,25 @@ const HomeClient = () => {
       },
     }),
   );
+
+  const testAi = useMutation(
+    trpc.testAi.mutationOptions({
+      onSuccess: () => {
+        toast.success("Workflow created successfully");
+      },
+    }),
+  );
+
   return (
-    <div className="w-full h-screen flex items-center justify-center flex-col">
+    <div className="min-w-full min-h-screen flex items-center justify-center flex-col gap-y-6">
       <div>
         <h1>Protected Page</h1>
       </div>
       <p>{JSON.stringify(data, null, 2)}</p>
+      <Button onClick={() => testAi.mutate()} disabled={testAi.isPending}>
+        Test AI
+      </Button>
+
       <Button onClick={() => create.mutate()} disabled={create.isPending}>
         Create Workflow
       </Button>
@@ -29,4 +42,3 @@ const HomeClient = () => {
 };
 
 export default HomeClient;
-
