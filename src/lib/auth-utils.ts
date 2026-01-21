@@ -19,8 +19,8 @@ export const requireUnAuth = async () => {
     headers: await headers(),
   });
 
-  if (!session) {
-    redirect("/");
+  if (session) {
+    redirect("/workflows");
   }
 
   return session;
