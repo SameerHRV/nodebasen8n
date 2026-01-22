@@ -10,16 +10,18 @@ interface WorkflowNodeProps {
   showToolBar?: boolean;
   onDelete?: () => void;
   onSetting?: () => void;
+  onDoubleClick?: () => void;
   name?: string;
-  discription?: string;
+  description?: string;
 }
 
 export const WorkflowNode = ({
   children,
-  discription,
+  description,
   name,
   onDelete,
   onSetting,
+  onDoubleClick,
   showToolBar = true,
 }: WorkflowNodeProps) => {
   return (
@@ -42,9 +44,9 @@ export const WorkflowNode = ({
           className="max-w-[200px] text-center"
         >
           <p className="font-medium">{name}</p>
-          {discription && (
+          {description && (
             <p className="text-muted-foreground truncate text-sm">
-              {discription}
+              {description}
             </p>
           )}
         </NodeToolbar>
