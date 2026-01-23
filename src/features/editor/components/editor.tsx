@@ -21,6 +21,8 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useState } from "react";
 import { AddNodeButton } from "./add-node-button";
+import { useSetAtom } from "jotai";
+import { editorAtom } from "../store/atoms";
 
 export const EditorLoding = () => {
   return <LodingView message="Loading Editor...." />;
@@ -34,6 +36,8 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
 
   const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
+
+  const setEditor = useSetAtom(editorAtom);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -59,11 +63,12 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        fitView
         nodeTypes={nodeComponents}
+        onInit={setEditor}
         proOptions={{
           hideAttribution: true,
         }}
+        fitView
       >
         <Background />
         <Controls />
