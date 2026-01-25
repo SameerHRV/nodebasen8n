@@ -101,12 +101,31 @@ export function useUpdateWorkflow() {
       onSuccess: (data) => {
         toast.success(`Workflow updated successfully`);
         queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
-        queryClient.invalidateQueries(
-          trpc.workflows.getOne.queryFilter({ id: data.id }),
-        );
+        if (data?.id) {
+          queryClient.invalidateQueries(
+            trpc.workflows.getOne.queryFilter({ id: data.id }),
+          );
+        }
       },
       onError: (error) => {
         toast.error(`Failed to save workflow: ${error.message}`);
+      },
+    }),
+  );
+}
+/**
+ * hook to execute a workflow
+ */
+export function useExecuteWorkflow() {
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.workflows.execute.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Workflow executed successfully`);
+      },
+      onError: (error) => {
+        toast.error(`Failed to execute workflow: ${error.message}`);
       },
     }),
   );
