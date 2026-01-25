@@ -62,7 +62,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   }, [nodes]);
 
   return (
-    <div className="size-full">
+    <div className="react-flow__pane size-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -210,3 +210,32 @@
 .react-flow__node.selected #base-node {
   @apply ring-3 ring-muted-foreground/25 shadow-lg;
 }
+
+/* React Flow cursor styles */
+.react-flow__pane {
+  cursor: default !important;
+}
+.react-flow__pane.dragging {
+  cursor: grab !important;
+}
+.react-flow__pane.dragging-panning {
+  cursor: grabbing !important;
+}
+.react-flow__handle {
+  cursor: crosshair !important;
+}
+.react-flow__handle.connecting {
+  cursor: crosshair !important;
+}
+.react-flow__handle.valid {
+  cursor: crosshair !important;
+}
+.react-flow__handle.invalid {
+  cursor: not-allowed !important;
+}
+.react-flow__edge-path {
+  cursor: pointer !important;
+}
+.react-flow__edge-path.selected {
+  cursor: pointer !important;
+}
