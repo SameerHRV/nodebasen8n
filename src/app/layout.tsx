@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${cascadiaCode.variable} ${poppins.variable} font-inter antialiased`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${poppins.variable} font-inter antialiased`}
       >
         <TRPCReactProvider>
           <NuqsAdapter>
