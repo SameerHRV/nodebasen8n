@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -28,13 +29,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import z from "zod";
 
 const formSchema = z.object({
+  variableName: z
+    .string()
+    .min(1, "Variable name is required")
+    .regex(
+      /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+      "Variable name must be a valid identifier (letters, numbers, underscores only)",
+    ),
   endpoint: z.url({ message: "Please Enter a Valid URL" }),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional(),
@@ -67,6 +74,7 @@ export function HttpRequestDialog({
   useEffect(() => {
     if (open) {
       form.reset({
+        variableName: defaultValues.variableName || "",
         endpoint: defaultValues.endpoint || "",
         method: defaultValues.method || "GET",
         body: defaultValues.body || "",
@@ -74,6 +82,7 @@ export function HttpRequestDialog({
     }
   }, [open, defaultValues, form]);
 
+  const variableName = form.watch("variableName") || "myApiCall";
   const watchMethod = form.watch("method");
   const showBodyFields = ["POST", "PUT", "PATCH"].includes(watchMethod);
 
@@ -94,6 +103,23 @@ export function HttpRequestDialog({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-8 mt-4"
           >
+            <FormField
+              control={form.control}
+              name="variableName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Variable Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="My Api Call" />
+                  </FormControl>
+                  <FormDescription>
+                    The name of the variable to store the response in .
+                    {`{{${variableName}.httpResponse.data}}`}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="method"
