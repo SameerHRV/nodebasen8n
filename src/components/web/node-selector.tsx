@@ -38,6 +38,12 @@ const triggerNodes: NodeTypeOption[] = [
     description: "Google Form Trigger",
     icon: "/googleform.svg",
   },
+  {
+    type: NodeType.STRIPE_TRIGGER,
+    label: "Stripe Trigger",
+    description: "Stripe Trigger",
+    icon: "/stripe.svg",
+  },
 ];
 
 const executionNodes: NodeTypeOption[] = [
