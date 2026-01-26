@@ -1,7 +1,8 @@
 import { NodeExecutor } from "@/features/executions/types";
+import { httpRequestChannel } from "@/inngest/channels/http-request";
+import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
 import ky, { type Options as KyOptions } from "ky";
-import Handlebars from "handlebars";
 
 type HttpRequestData = {
   variableName: string;
@@ -22,56 +23,98 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
   nodeId,
   context,
   step,
+  publish,
 }) => {
-  //TODO Publishing "Loading state for manual Trigger"
+  await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "loading",
+    }),
+  );
 
   if (!data.endpoint) {
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError("HTTP Request: No endpoint Configured");
   }
 
   if (!data.variableName) {
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError("HTTP Request: No variable name Configured");
   }
 
   if (!data.method) {
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
     throw new NonRetriableError("HTTP Request: No method Configured");
   }
 
-  const result = await step.run("http-request", async () => {
-    const endpoint = Handlebars.compile(data.endpoint)(context);
-    const method = data.method;
+  try {
+    const result = await step.run("http-request", async () => {
+      const endpoint = Handlebars.compile(data.endpoint)(context);
+      const method = data.method;
 
-    const options: KyOptions = { method };
+      const options: KyOptions = { method };
 
-    if (["POST", "PUT", "PATCH"].includes(method)) {
-      const resolve = Handlebars.compile(data.body || "{}");
-      const parsedBody = JSON.parse(resolve(context));
-      options.body = parsedBody;
-      options.headers = {
-        "Content-Type": "application/json",
+      if (["POST", "PUT", "PATCH"].includes(method)) {
+        const resolve = Handlebars.compile(data.body || "{}");
+        const parsedBody = JSON.parse(resolve(context));
+        options.body = parsedBody;
+        options.headers = {
+          "Content-Type": "application/json",
+        };
+      }
+
+      const response = await ky(endpoint, options);
+      const contentType = response.headers.get("content-type") || "";
+      const responsData =
+        contentType.includes("application/json") ||
+        contentType.includes("text/")
+          ? await response.json().catch(() => response.text())
+          : await response.arrayBuffer();
+
+      const responsPayload = {
+        httpRespons: {
+          status: response.status,
+          statusText: response.statusText,
+          data: responsData,
+        },
       };
-    }
 
-    const response = await ky(endpoint, options);
-    const contentType = response.headers.get("content-type") || "";
-    const responsData =
-      contentType.includes("application/json") || contentType.includes("text/")
-        ? await response.json().catch(() => response.text())
-        : await response.arrayBuffer();
+      return {
+        ...context,
+        [data.variableName]: responsPayload,
+      };
+    });
 
-    const responsPayload = {
-      httpRespons: {
-        status: response.status,
-        statusText: response.statusText,
-        data: responsData,
-      },
-    };
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "success",
+      }),
+    );
 
-    return {
-      ...context,
-      [data.variableName]: responsPayload,
-    };
-  });
-
-  return result;
+    return result;
+  } catch (error) {
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw error;
+  }
 };
