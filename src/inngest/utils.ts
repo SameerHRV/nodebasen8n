@@ -1,5 +1,6 @@
 import toposort from "toposort";
 import { Node, Connection } from "../generated/prisma/client";
+import { inngest } from "./client";
 
 export const TopologicalSort = (
   nodes: Node[],
@@ -39,4 +40,14 @@ export const TopologicalSort = (
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
 
   return sortedNodes.map((id) => nodeMap.get(id)!).filter(Boolean);
+};
+
+export const sendWorkflowExecution = async (data: {
+  workflowId: string;
+  [key: string]: any;
+}) => {
+  await inngest.send({
+    name: "workflow/execute.workflow",
+    data,
+  });
 };

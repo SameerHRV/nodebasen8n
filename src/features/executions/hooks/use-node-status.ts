@@ -40,15 +40,14 @@ export function useNodeStatus({
       .sort((a, b) => {
         if (a.kind === "data" && b.kind === "data") {
           return (
-            new Date(b.data.timestamp).getTime() -
-            new Date(a.data.timestamp).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         }
         return 0;
       })[0];
 
     if (latestMessage?.kind === "data") {
-      setStatus(latestMessage.data.status as NodeStatus);
+      setTimeout(() => setStatus(latestMessage.data.status as NodeStatus), 0);
     }
   }, [data, nodeId, channel, topic]);
 
