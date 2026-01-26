@@ -1,1 +1,3 @@
 ERROR [portable_pty::win::psuedocon] CreateProcessW `"\"C:\\Program Files\\nodejs\\npx\" --ignore-scripts=false inngest-cli@latest dev\0"` in cwd `Some("E:\\nodebasen8n\0")` failed: %1 is not a valid Win32 application. (os error 193)
+ERROR [lib::error] Error: channel closed
+ERROR [lib::error] Error: channel closed

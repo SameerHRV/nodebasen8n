@@ -3,6 +3,7 @@
 import { ErrorView, LodingView } from "@/components/web/entity-components";
 import { nodeComponents } from "@/config/node-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
+import { NodeType } from "@/generated/prisma/enums";
 import {
   Background,
   Controls,
@@ -19,11 +20,10 @@ import {
   type NodeChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useMemo, useState } from "react";
-import { AddNodeButton } from "./add-node-button";
 import { useSetAtom } from "jotai";
+import { useCallback, useMemo, useState } from "react";
 import { editorAtom } from "../store/atoms";
-import { NodeType } from "@/generated/prisma/enums";
+import { AddNodeButton } from "./add-node-button";
 import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
 export const EditorLoding = () => {

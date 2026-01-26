@@ -1,6 +1,6 @@
 procs:
-  inngest:
-    cmd: ["npx", "inngest-cli", "dev"]
+  ngrok:
+    cmd: ["bun", "run", "ngrok:dev"]
 
   next:
-    cmd: ["bun", "dev"]
+    cmd: ["bun", "run", "dev"]

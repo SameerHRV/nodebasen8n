@@ -16,6 +16,7 @@ import { Separator } from "../ui/separator";
 import { useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export type NodeTypeOption = {
   type: NodeType;
@@ -30,6 +31,12 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Manual Trigger",
     description: "Manual Trigger",
     icon: MousePointerIcon,
+  },
+  {
+    type: NodeType.GOOGLE_FORM_TRIGGER,
+    label: "Google Form Trigger",
+    description: "Google Form Trigger",
+    icon: "/googleform.svg",
   },
 ];
 
@@ -121,7 +128,7 @@ export const NodeSelector = ({
                   onClick={() => handleNodeSelect(node.type)}
                 >
                   {typeof Icon === "string" ? (
-                    <span className="text-lg">{Icon}</span>
+                    <Image src={Icon} alt={node.label} width={20} height={20} />
                   ) : (
                     <Icon className="w-5 h-5" />
                   )}
@@ -146,7 +153,7 @@ export const NodeSelector = ({
                   onClick={() => handleNodeSelect(node.type)}
                 >
                   {typeof Icon === "string" ? (
-                    <span className="text-lg">{Icon}</span>
+                    <Image src={Icon} alt={node.label} width={20} height={20} />
                   ) : (
                     <Icon className="w-5 h-5" />
                   )}
