@@ -1,5 +1,5 @@
 import { getExecutor } from "@/features/executions/libs/executor-registory";
-import { NodeType } from "@/generated/prisma/enums";
+import { ExecutionStatus, NodeType } from "@/generated/prisma/enums";
 import prisma from "@/lib/db";
 import { NonRetriableError } from "inngest";
 import { geminiChannel } from "./channels/gemini";
@@ -16,6 +16,18 @@ export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
     retries: 0, //TODO: Remove in production
+    onFailure: async ({ event, step }) => {
+      return prisma.execution.update({
+        where: {
+          inngestEventId: event.data.event.id,
+        },
+        data: {
+          status: ExecutionStatus.FAILED,
+          error: event.data.error.message,
+          errorStack: event.data.error.stack,
+        },
+      });
+    },
   },
 
   {
@@ -31,11 +43,21 @@ export const executeWorkflow = inngest.createFunction(
     ],
   },
   async ({ event, step, publish }) => {
+    const inngestEventId = event.id;
     const workflowID = event.data.workflowId;
 
-    if (!workflowID) {
-      throw new NonRetriableError("Workflow ID is required");
+    if (!inngestEventId || !workflowID) {
+      throw new NonRetriableError("Event ID or Workflow ID is required");
     }
+
+    await step.run("create-execution", async () => {
+      return prisma.execution.create({
+        data: {
+          workflowId: workflowID,
+          inngestEventId,
+        },
+      });
+    });
 
     const sortedNodes = await step.run("prepare-workflow", async () => {
       const workflow = await prisma.workflow.findUniqueOrThrow({
@@ -76,6 +98,20 @@ export const executeWorkflow = inngest.createFunction(
         publish,
       });
     }
+
+    await step.run("update-execution", async () => {
+      await prisma.execution.update({
+        where: {
+          inngestEventId,
+          workflowId: workflowID,
+        },
+        data: {
+          status: ExecutionStatus.SUCCESS,
+          completedAt: new Date(),
+          output: context,
+        },
+      });
+    });
 
     return {
       workflowID,
