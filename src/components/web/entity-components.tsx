@@ -37,7 +37,7 @@ import {
 type EntityHeaderProps = {
   title: string;
   description: string;
-  newButtonLable: string;
+  newButtonLable?: string;
   disabled?: boolean;
   isCreating?: boolean;
 } & (
