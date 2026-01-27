@@ -33,6 +33,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { useCredentialByType } from "@/features/credentials/hooks/use-credentials";
+import { CredentialType } from "@/generated/prisma/enums";
+import Image from "next/image";
 
 export const AVAIABLE_MODELS = [
   "gemini-flash-lite-latest",
@@ -52,6 +55,7 @@ const formSchema = z.object({
       /^[a-zA-Z_][a-zA-Z0-9_]*$/,
       "Variable name must be a valid identifier (letters, numbers, underscores only)",
     ),
+  credentialId: z.string().min(1, "Credential is required"),
   model: z.enum(AVAIABLE_MODELS),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, "User prompt is required"),
@@ -72,6 +76,9 @@ export function GeminiDialog({
   onSubmit,
   defaultValues = {},
 }: Props) {
+  const { data: credentials, isLoading: isLoadingCredential } =
+    useCredentialByType(CredentialType.GEMINI);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,6 +86,7 @@ export function GeminiDialog({
       model: defaultValues.model || "gemini-2.0-flash",
       systemPrompt: defaultValues.systemPrompt || "",
       userPrompt: defaultValues.userPrompt || "",
+      credentialId: defaultValues.credentialId || "",
     },
   });
 
@@ -89,6 +97,7 @@ export function GeminiDialog({
         model: defaultValues.model || "gemini-2.0-flash",
         systemPrompt: defaultValues.systemPrompt || "",
         userPrompt: defaultValues.userPrompt || "",
+        credentialId: defaultValues.credentialId || "",
       });
     }
   }, [open, defaultValues, form]);
@@ -127,6 +136,42 @@ export function GeminiDialog({
                     The name of the variable to store the response in .
                     {`{{${variableName}.httpResponse.data}}`}
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="credentialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gemini Credential</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={isLoadingCredential || !credentials?.length}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a credential" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {credentials?.map((credential) => (
+                        <SelectItem key={credential.id} value={credential.id}>
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src={"/gemini.svg"}
+                              alt="Gemini"
+                              width={16}
+                              height={16}
+                            />
+                            {credential.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

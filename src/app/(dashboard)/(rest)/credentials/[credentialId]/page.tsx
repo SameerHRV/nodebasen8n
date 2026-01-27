@@ -1,4 +1,13 @@
+import { CredentialView } from "@/features/credentials/components/credential";
+import {
+  CredentialsError,
+  CredentialsLoding,
+} from "@/features/credentials/components/credentials";
+import { prefetchCredential } from "@/features/credentials/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
+import { HydrateClient } from "@/trpc/server";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 interface CredentialIdProps {
   params: Promise<{
@@ -7,11 +16,20 @@ interface CredentialIdProps {
 }
 
 const CredentialId = async ({ params }: CredentialIdProps) => {
-  const { credentialId } = await params;
   await requireAuth();
+  const { credentialId } = await params;
+  prefetchCredential(credentialId);
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Credential Id: {credentialId}</h1>
+    <div className="p-4 md:px-10 md:py-6 h-full">
+      <div className="mx-auto max-w-3xl w-full flex flex-col gap-y-8 h-full">
+        <HydrateClient>
+          <ErrorBoundary fallback={<CredentialsError />}>
+            <Suspense fallback={<CredentialsLoding />}>
+              <CredentialView credentialId={credentialId} />
+            </Suspense>
+          </ErrorBoundary>
+        </HydrateClient>
+      </div>
     </div>
   );
 };
