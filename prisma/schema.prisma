@@ -119,6 +119,8 @@ enum NodeType {
   STRIPE_TRIGGER
   GOOGLE
   ANTHROPIC
+  DISCORD
+  SLACK
 }
 
 model Node {
