@@ -1,31 +1,29 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormLabel,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { ClockFading } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 // import {authClient} from "@/lib/auth-client";
 
 const loginSchema = z.object({
@@ -46,6 +44,39 @@ const LoginForm = () => {
     },
   });
 
+  const handleGithubSignIn = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "github",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+          toast.success("Signed in successfully");
+        },
+        onError: (error) => {
+          toast.error(error.error.message);
+        },
+      },
+    );
+  };
+  const handleGoogleSignIn = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "google",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
+          toast.success("Signed in successfully");
+        },
+        onError: (error) => {
+          toast.error(error.error.message);
+        },
+      },
+    );
+  };
+
   const handleSubmit = async (data: LoginFromValues) => {
     await authClient.signIn.email(
       {
@@ -60,7 +91,7 @@ const LoginForm = () => {
         onError: (error) => {
           toast.error(error.error.message);
         },
-      }
+      },
     );
   };
 
@@ -83,9 +114,10 @@ const LoginForm = () => {
                     className="w-full"
                     type="button"
                     disabled={isPending}
+                    onClick={handleGithubSignIn}
                   >
                     <Image
-                      src={"/images/github.svg"}
+                      src={"github.svg"}
                       width={20}
                       height={20}
                       alt="github"
@@ -97,9 +129,10 @@ const LoginForm = () => {
                     className="w-full"
                     type="button"
                     disabled={isPending}
+                    onClick={handleGoogleSignIn}
                   >
                     <Image
-                      src={"/images/google.svg"}
+                      src={"google.svg"}
                       width={20}
                       height={20}
                       alt="google"
